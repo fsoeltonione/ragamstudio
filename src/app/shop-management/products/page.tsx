@@ -68,14 +68,14 @@ export default async function ShopProductsPage() {
                   <td className="px-6 py-4 text-gray-900 font-medium">Rp {Number(product.price).toLocaleString('id-ID')}</td>
                   <td className="px-6 py-4 text-orange-600 font-bold">Rp {Number(product.avg_cost).toLocaleString('id-ID')}</td>
                   <td className="px-6 py-4">
-                    <span className={\`px-2.5 py-1 rounded-full text-xs font-bold \${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}\`}>
+                    <span className={["px-2.5 py-1 rounded-full text-xs font-bold", product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'].join(' ')}>
                       {product.stock}
                     </span>
                   </td>
                   <td className="px-6 py-4">{product.shops?.name || 'All Shops'}</td>
                   <td className="px-6 py-4 text-right">
-                    <button className={\`relative inline-flex h-5 w-9 items-center rounded-full \${product.is_active ? 'bg-orange-500' : 'bg-gray-200'}\`}>
-                      <span className={\`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition \${product.is_active ? 'translate-x-4' : 'translate-x-1'}\`}/>
+                    <button className={["relative inline-flex h-5 w-9 items-center rounded-full", product.is_active ? 'bg-orange-500' : 'bg-gray-200'].join(' ')}>
+                      <span className={["inline-block h-3.5 w-3.5 transform rounded-full bg-white transition", product.is_active ? 'translate-x-4' : 'translate-x-1'].join(' ')}/>
                     </button>
                   </td>
                 </tr>
