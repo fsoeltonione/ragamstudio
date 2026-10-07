@@ -1,12 +1,16 @@
+"use client";
 import { Bell, Menu, AlertCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useSidebar } from "./SidebarContext";
+import { usePathname } from "next/navigation";
 
-export async function Topbar() {
-  // Fetch general studio name and topbar announcement
-  const { data } = await supabase.from("system_settings").select("*");
-  const studioName = data?.find(s => s.key_name === 'studio_name')?.value_text || 'RagamStudio';
-  const announcementText = data?.find(s => s.key_name === 'announcement_text')?.value_text;
-  const announcementLink = data?.find(s => s.key_name === 'announcement_link')?.value_text;
+export function Topbar({ initialProps }: { initialProps: any }) {
+  const { toggleSidebar } = useSidebar();
+  const pathname = usePathname();
+
+  // Hide on login page
+  if (pathname === '/login') return null;
+
+  const { studioName = 'RagamStudio', announcementText, announcementLink } = initialProps || {};
 
   return (
     <div className="flex flex-col sticky top-0 z-10">
@@ -24,7 +28,7 @@ export async function Topbar() {
       {/* Main Topbar */}
       <header className="h-16 bg-white border-b flex items-center justify-between px-4">
         <div className="flex items-center gap-4">
-          <button className="md:hidden text-gray-500 hover:text-gray-700">
+          <button onClick={toggleSidebar} className="md:hidden text-gray-500 hover:text-gray-700">
             <Menu className="w-6 h-6" />
           </button>
           <div className="text-xl font-bold flex items-center gap-2">

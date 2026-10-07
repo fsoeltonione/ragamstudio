@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -15,25 +13,26 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title, description: desc };
 }
 
-export default function RootLayout({
+import { AppLayout } from "@/components/layout/AppLayout";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { data } = await supabase.from("system_settings").select("*");
+  const studioName = data?.find(s => s.key_name === 'studio_name')?.value_text || 'RagamStudio';
+  const announcementText = data?.find(s => s.key_name === 'announcement_text')?.value_text;
+  const announcementLink = data?.find(s => s.key_name === 'announcement_link')?.value_text;
+  
+  const initialTopbarProps = { studioName, announcementText, announcementLink };
+
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} font-sans antialiased bg-[#F9FAFB] text-gray-900 flex h-screen overflow-hidden`}
-      >
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Topbar />
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-6">
-              {children}
-            </div>
-          </main>
-        </div>
+      <body className={`${inter.variable} font-sans antialiased bg-[#F9FAFB] text-gray-900`}>
+        <AppLayout initialTopbarProps={initialTopbarProps}>
+          {children}
+        </AppLayout>
       </body>
     </html>
   );

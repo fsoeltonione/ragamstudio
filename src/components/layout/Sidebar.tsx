@@ -87,16 +87,25 @@ const menuGroups = [
   }
 ];
 
+import { useSidebar } from "./SidebarContext";
+
 export function Sidebar() {
   const pathname = usePathname();
+  const { isOpen, closeSidebar } = useSidebar();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
   const toggleGroup = (title: string) => {
     setExpandedGroups(prev => ({ ...prev, [title]: !prev[title] }));
   };
 
+  // If in login page, hide completely
+  if (pathname === '/login') return null;
+
   return (
-    <aside className="w-60 bg-white border-r h-screen overflow-y-auto hidden md:flex flex-col">
+    <aside className={cn(
+      "w-64 bg-white border-r h-screen overflow-y-auto flex flex-col fixed md:relative z-30 transition-transform duration-300",
+      isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+    )}>
       <div className="p-4 space-y-1">
         {menuGroups.map((group, idx) => (
           <div key={idx} className="mb-4">
@@ -124,6 +133,7 @@ export function Sidebar() {
                         <Link
                           key={item.name}
                           href={item.href}
+                          onClick={closeSidebar}
                           className={cn(
                             "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                             isActive
@@ -148,6 +158,7 @@ export function Sidebar() {
                     <Link
                       key={item.name}
                       href={item.href}
+                      onClick={closeSidebar}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                         isActive
