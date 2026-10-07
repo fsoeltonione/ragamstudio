@@ -3,57 +3,52 @@
 import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 
-export async function completeSale(formData: FormData) {
-  const member_id = formData.get("member_id") as string;
-  const package_id = formData.get("package_id") as string;
-  const payment_method = formData.get("payment_method") as string;
-  const notes = formData.get("notes") as string;
+export async function processSale(payload: {
+  shop_id: string;
+  customer_name?: string;
+  payment_method_name: string;
+  cart: { product_id: string; qty: number; unit_price: number }[];
+  total: number;
+}) {
+  if (!payload.shop_id) throw new Error("Shop is required!");
+  if (!payload.payment_method_name) throw new Error("Payment Method is required!");
+  if (payload.cart.length === 0) throw new Error("Cart is empty!");
 
-  if (!member_id || !package_id || !payment_method) {
-    return { error: "Customer, Package, and Payment Method are required." };
+  // Generate unique sale number
+  const saleNumber = "SALE-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 1000);
+
+  // 1. Insert Sale Header
+  const { data: sale, error: saleErr } = await supabase.from("shop_sales").insert({
+    sale_number: saleNumber,
+    customer_name: payload.customer_name || 'Walk-in Customer',
+    shop_id: payload.shop_id,
+    payment_method: payload.payment_method_name,
+    total: payload.total,
+    status: "COMPLETED" // Directly completed for POS
+  }).select().single();
+
+  if (saleErr) throw new Error("Failed to create sale: " + saleErr.message);
+
+  // 2. Insert Sale Items (This will trigger the stock deduction automatically)
+  const saleItems = payload.cart.map(item => ({
+    sale_id: sale.id,
+    product_id: item.product_id,
+    qty: item.qty,
+    unit_price: item.unit_price
+  }));
+
+  const { error: itemsErr } = await supabase.from("shop_sale_items").insert(saleItems);
+
+  if (itemsErr) {
+    // Rollback attempt
+    await supabase.from("shop_sales").delete().eq("id", sale.id);
+    throw new Error("Failed to insert items: " + itemsErr.message);
   }
 
-  // 1. Fetch package details
-  const { data: pkg } = await supabase
-    .from("packages")
-    .select("*")
-    .eq("id", package_id)
-    .single();
+  // Revalidate everything
+  revalidatePath("/pos");
+  revalidatePath("/shop-management/products");
+  revalidatePath("/shop-management/sales");
 
-  if (!pkg) return { error: "Invalid package." };
-
-  // 2. Calculate Expiry Date
-  const activationDate = new Date();
-  const expiryDate = new Date();
-  expiryDate.setDate(expiryDate.getDate() + (pkg.duration_days || 30));
-
-  // 3. Create Member Package (inject credits)
-  const { error: mpError } = await supabase
-    .from("member_packages")
-    .insert({
-      member_id,
-      package_id,
-      sessions_left: pkg.total_sessions,
-      activation_date: activationDate.toISOString(),
-      expiry_date: expiryDate.toISOString(),
-      is_active: true
-    });
-
-  if (mpError) return { error: "Failed to create member package." };
-
-  // 4. Record Transaction
-  const { error: txError } = await supabase
-    .from("transactions")
-    .insert({
-      member_id,
-      package_id,
-      amount: pkg.price,
-      payment_method,
-      notes
-    });
-
-  if (txError) return { error: "Failed to record transaction." };
-
-  revalidatePath("/", "layout");
-  return { success: true };
+  return sale.sale_number;
 }

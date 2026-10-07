@@ -1,31 +1,35 @@
 import { supabase } from "@/lib/supabase";
-import PosClient from "./PosClient";
+import { POSClient } from "@/components/pos/POSClient";
 
 export const dynamic = 'force-dynamic';
 
-export default async function PosPage() {
-  // Fetch master data for the POS
-  const { data: packages } = await supabase
-    .from("packages")
-    .select("*")
-    .order("name", { ascending: true });
-
-  const { data: members } = await supabase
-    .from("members")
-    .select("id, name")
-    .order("name", { ascending: true });
+export default async function PointOfSalePage() {
+  const [
+    { data: products },
+    { data: shops },
+    { data: paymentMethods },
+    { data: members }
+  ] = await Promise.all([
+    supabase.from("shop_products").select("*").eq("is_active", true).order("name"),
+    supabase.from("shops").select("id, name").eq("is_active", true),
+    supabase.from("payment_methods").select("id, name"),
+    supabase.from("members").select("id, name")
+  ]);
 
   return (
-    <>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Point of Sale</h1>
-        <p className="text-gray-500 mt-1">Process new transactions and sell packages</p>
+    <div className="-m-4 sm:-m-6 lg:-m-8 h-[calc(100vh-64px)]">
+      {/* 
+        We use negative margins to break out of AppLayout's padding 
+        so the POS feels like a full-screen application.
+      */}
+      <div className="h-full p-4 sm:p-6 lg:p-8 bg-gray-100">
+        <POSClient 
+          products={products || []} 
+          shops={shops || []} 
+          paymentMethods={paymentMethods || []} 
+          members={members || []} 
+        />
       </div>
-
-      <PosClient 
-        packages={packages || []} 
-        members={members || []} 
-      />
-    </>
+    </div>
   );
 }
