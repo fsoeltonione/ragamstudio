@@ -96,7 +96,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-72 bg-white border-r h-screen overflow-y-auto hidden md:flex flex-col">
+    <aside className="w-60 bg-white border-r h-screen overflow-y-auto hidden md:flex flex-col">
       <div className="p-4 space-y-1">
         {menuGroups.map((group, idx) => (
           <div key={idx} className="mb-4">
