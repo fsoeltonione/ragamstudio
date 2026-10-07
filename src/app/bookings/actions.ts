@@ -66,6 +66,12 @@ export async function createBooking(formData: FormData) {
 
   if (bookingError) return { error: "Failed to create booking." };
 
+  // TRIGGER REAL NOTIFICATION
+  await supabase.from("database_notifications").insert({
+    title: isWaitlist ? "New Waitlist Entry" : "New Class Booking",
+    message: \`User booked a session for Schedule \${schedule_id}\`
+  });
+
   revalidatePath("/", "layout");
   redirect("/bookings");
 }
