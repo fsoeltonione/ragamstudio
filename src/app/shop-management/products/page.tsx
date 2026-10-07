@@ -1,6 +1,14 @@
 import { Search, Filter, X, Columns } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-export default function ShopProductsPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function ShopProductsPage() {
+  const { data: products } = await supabase
+    .from("shop_products")
+    .select("*, shops(name)")
+    .order("created_at", { ascending: false });
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col min-h-[500px]">
       
@@ -25,7 +33,7 @@ export default function ShopProductsPage() {
         </button>
       </div>
 
-      {/* Table Header */}
+      {/* Table Area */}
       <div className="overflow-x-auto w-full">
         <table className="w-full text-sm text-left text-gray-500 min-w-max">
           <thead className="text-xs text-gray-700 bg-gray-50 border-b border-gray-200">
@@ -50,18 +58,41 @@ export default function ShopProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {/* Empty body */}
+            {products && products.length > 0 ? (
+              products.map((product) => (
+                <tr key={product.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-gray-900">{product.name}</td>
+                  <td className="px-6 py-4">{product.sku || '-'}</td>
+                  <td className="px-6 py-4">{product.barcode || '-'}</td>
+                  <td className="px-6 py-4">{product.uom}</td>
+                  <td className="px-6 py-4 text-gray-900 font-medium">Rp {Number(product.price).toLocaleString('id-ID')}</td>
+                  <td className="px-6 py-4 text-orange-600 font-bold">Rp {Number(product.avg_cost).toLocaleString('id-ID')}</td>
+                  <td className="px-6 py-4">
+                    <span className={\`px-2.5 py-1 rounded-full text-xs font-bold \${product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}\`}>
+                      {product.stock}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">{product.shops?.name || 'All Shops'}</td>
+                  <td className="px-6 py-4 text-right">
+                    <button className={\`relative inline-flex h-5 w-9 items-center rounded-full \${product.is_active ? 'bg-orange-500' : 'bg-gray-200'}\`}>
+                      <span className={\`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition \${product.is_active ? 'translate-x-4' : 'translate-x-1'}\`}/>
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : null}
           </tbody>
         </table>
       </div>
 
-      {/* Empty State */}
-      <div className="flex-1 flex flex-col items-center justify-center py-20">
-        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
-          <X className="w-6 h-6" />
+      {(!products || products.length === 0) && (
+        <div className="flex-1 flex flex-col items-center justify-center py-20">
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
+            <X className="w-6 h-6" />
+          </div>
+          <h3 className="text-sm font-bold text-gray-900">No shop products</h3>
         </div>
-        <h3 className="text-sm font-bold text-gray-900">No shop products</h3>
-      </div>
+      )}
       
     </div>
   );
