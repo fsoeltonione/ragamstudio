@@ -3,6 +3,8 @@ import { format } from "date-fns";
 import { PlusCircle, Search, User, MapPin } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 // Using server component to fetch data directly
 export default async function BookingsPage() {
   const { data: bookings, error } = await supabase
