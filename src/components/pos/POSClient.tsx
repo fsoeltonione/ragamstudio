@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Search, Plus, Minus, Trash2, ShoppingCart, User, Store, CreditCard, CheckCircle } from "lucide-react";
-import { processSale } from "./actions";
+import { processSale } from "@/app/pos/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
