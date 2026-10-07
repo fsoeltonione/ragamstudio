@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, ShoppingCart, Tag, SlidersHorizontal, Store, Truck, BarChart3, ChevronRight } from "lucide-react";
+import { ShoppingBag, Archive, Banknote, SlidersHorizontal, Store, Truck, BarChart3, ChevronRight } from "lucide-react";
 
 export default function ShopManagementLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const navItems = [
     { name: "Shop Products", href: "/shop-management/products", icon: ShoppingBag },
-    { name: "Shop Purchases", href: "/shop-management/purchases", icon: ShoppingCart },
-    { name: "Shop Sales", href: "/shop-management/sales", icon: Tag },
+    { name: "Shop Purchases", href: "/shop-management/purchases", icon: Archive },
+    { name: "Shop Sales", href: "/shop-management/sales", icon: Banknote },
     { name: "Shop Stock Adjustments", href: "/shop-management/stock-adjustments", icon: SlidersHorizontal },
     { name: "Shops", href: "/shop-management/shops", icon: Store },
     { name: "Vendors", href: "/shop-management/vendors", icon: Truck },
@@ -20,7 +20,7 @@ export default function ShopManagementLayout({ children }: { children: React.Rea
   const currentItem = navItems.find(item => pathname.includes(item.href)) || navItems[0];
 
   return (
-    <div className="flex flex-col h-full space-y-6">
+    <div className="flex flex-col space-y-6">
       
       {/* Breadcrumb & Header */}
       <div>
@@ -34,13 +34,13 @@ export default function ShopManagementLayout({ children }: { children: React.Rea
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">{currentItem.name}</h1>
           <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-            New {currentItem.name.replace('Shop ', '')}
+            New {currentItem.name.toLowerCase().endsWith('s') ? currentItem.name.toLowerCase().slice(0, -1) : currentItem.name.toLowerCase()}
           </button>
         </div>
       </div>
 
       {/* Cluster Layout */}
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row gap-8 items-start">
         
         {/* Inner Sidebar Menu */}
         <div className="w-full md:w-64 flex-shrink-0">
@@ -63,7 +63,7 @@ export default function ShopManagementLayout({ children }: { children: React.Rea
         </div>
 
         {/* Content Area */}
-        <div className="flex-1">
+        <div className="flex-1 w-full overflow-hidden">
           {children}
         </div>
 
