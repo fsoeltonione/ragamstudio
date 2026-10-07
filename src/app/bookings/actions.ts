@@ -12,8 +12,22 @@ export async function createBooking(formData: FormData) {
     return { error: "Member and Schedule are required." };
   }
 
-  // 1. Find an active package for the member with remaining sessions
-  const { data: memberPackages, error: pkgError } = await supabase
+  // 1. Check Capacity to determine if Waitlist
+  const { data: schedule } = await supabase
+    .from("class_schedules")
+    .select("class:studio_classes(capacity), bookings(count)")
+    .eq("id", schedule_id)
+    .single();
+    
+  if (!schedule) return { error: "Invalid schedule." };
+  
+  const capacity = schedule.class.capacity || 0;
+  // @ts-ignore
+  const currentBookings = schedule.bookings[0]?.count || 0;
+  const isWaitlist = currentBookings >= capacity;
+
+  // 2. Find an active package for the member with remaining sessions
+  const { data: memberPackages } = await supabase
     .from("member_packages")
     .select("id, sessions_left")
     .eq("member_id", member_id)
@@ -22,45 +36,44 @@ export async function createBooking(formData: FormData) {
     .order("expiry_date", { ascending: true })
     .limit(1);
 
-  if (pkgError) {
-    return { error: "Failed to verify member package." };
-  }
-
   if (!memberPackages || memberPackages.length === 0) {
     return { error: "Member does not have an active package with remaining credits." };
   }
 
   const activePackage = memberPackages[0];
 
-  // 2. Decrement the session (Credit Deduction)
+  // 3. Decrement the session (Even for waitlist, we hold the credit)
   const { error: deductError } = await supabase
     .from("member_packages")
     .update({ 
       sessions_left: activePackage.sessions_left - 1,
-      // If it becomes 0, we can auto-deactivate it (or leave it to a trigger/CRON, but let's do it here for simplicity)
       is_active: activePackage.sessions_left - 1 > 0 
     })
     .eq("id", activePackage.id);
 
-  if (deductError) {
-    return { error: "Failed to deduct package session." };
-  }
+  if (deductError) return { error: "Failed to deduct package session." };
 
-  // 3. Create the Booking
+  // 4. Create the Booking
   const { error: bookingError } = await supabase
     .from("bookings")
     .insert({
       member_id,
       schedule_id,
       status: "CONFIRMED",
+      is_waitlist: isWaitlist,
+      attendance_status: "PENDING"
     });
 
-  if (bookingError) {
-    // Ideally we should rollback the deduction, but we're keeping it simple for MVP
-    return { error: "Failed to create booking." };
-  }
+  if (bookingError) return { error: "Failed to create booking." };
 
-  // Revalidate and redirect
   revalidatePath("/", "layout");
   redirect("/bookings");
+}
+
+export async function markAttendance(id: string, status: string) {
+  await supabase
+    .from("bookings")
+    .update({ attendance_status: status })
+    .eq("id", id);
+  revalidatePath("/bookings");
 }

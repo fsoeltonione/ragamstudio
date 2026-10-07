@@ -77,6 +77,23 @@ export default function CreateMemberPage() {
           </div>
 
           <div className="space-y-2">
+            <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+              Gender
+            </label>
+            <div className="relative">
+              <select 
+                id="gender" 
+                name="gender" 
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="">Select Gender</option>
+                <option value="FEMALE">Female</option>
+                <option value="MALE">Male</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
               Phone Number
             </label>

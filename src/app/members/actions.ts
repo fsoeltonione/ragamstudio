@@ -8,6 +8,7 @@ export async function createMember(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const phone = formData.get("phone") as string;
+  const gender = formData.get("gender") as string;
 
   if (!name || !email) {
     return { error: "Name and Email are required." };
@@ -18,7 +19,8 @@ export async function createMember(formData: FormData) {
     .insert({
       name,
       email,
-      phone
+      phone,
+      gender
     });
 
   if (error) {
