@@ -1,204 +1,150 @@
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
-import { Activity, Users, User, Package, DollarSign, Calendar, TrendingUp, CreditCard } from "lucide-react";
+import { TrendingUp, Users, DollarSign, Calendar, MoreVertical, CreditCard } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
-  // 1. Fetch Aggregated Data
-  const { count: membersCount } = await supabase.from("members").select("*", { count: 'exact', head: true });
-  const { count: packagesCount } = await supabase.from("packages").select("*", { count: 'exact', head: true });
-  
-  // Get upcoming schedules
-  const now = new Date().toISOString();
-  const { count: upcomingSchedules } = await supabase
-    .from("class_schedules")
-    .select("*", { count: 'exact', head: true })
-    .gte("start_time", now);
-
-  // Get total revenue
-  const { data: transactions } = await supabase.from("transactions").select("amount");
-  const grossRevenue = transactions?.reduce((acc, tx) => acc + Number(tx.amount), 0) || 0;
-
-  // 2. Fetch Recent Activity (Last 5 Bookings)
-  const { data: recentBookings } = await supabase
-    .from("bookings")
-    .select(`
-      id,
-      status,
-      created_at,
+  const [
+    { count: membersCount },
+    { data: transactions },
+    { count: upcomingSchedules },
+    { data: recentBookings }
+  ] = await Promise.all([
+    supabase.from("members").select("*", { count: "exact", head: true }),
+    supabase.from("transactions").select("amount"),
+    supabase.from("studio_schedules").select("*", { count: "exact", head: true }).gte("start_time", new Date().toISOString()),
+    supabase.from("bookings").select(\`
+      id, status, created_at,
       member:members(name),
-      schedule:class_schedules(
-        start_time,
-        class:studio_classes(name)
-      )
-    `)
-    .order("created_at", { ascending: false })
-    .limit(5);
+      schedule:studio_schedules(start_time, class:studio_classes(name))
+    \`).order("created_at", { ascending: false }).limit(5)
+  ]);
+
+  const grossRevenue = transactions?.reduce((sum, tx) => sum + Number(tx.amount), 0) || 0;
 
   return (
-    <>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard Analytics</h1>
-        <p className="text-gray-500 mt-1">Welcome back, Super Admin! Here is what's happening today.</p>
-      </div>
-
-      {/* Primary KPI Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Widget 1 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-4">
+    <div className="space-y-6">
+      
+      {/* Filament Stats Overview Widget */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Stat 1 */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col justify-between relative overflow-hidden">
+          <div className="flex justify-between items-start">
             <div>
               <p className="text-sm font-medium text-gray-500">Gross Revenue</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-1">Rp {grossRevenue.toLocaleString('id-ID')}</h3>
-            </div>
-            <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-              <DollarSign className="w-5 h-5" />
+              <h3 className="text-3xl font-bold text-gray-900 mt-2">Rp {grossRevenue.toLocaleString('id-ID')}</h3>
             </div>
           </div>
-          <div className="flex items-center text-sm">
-            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-            <span className="text-green-500 font-medium mr-2">+12.5%</span>
-            <span className="text-gray-400">from last month</span>
+          <div className="flex items-center text-sm mt-4 text-green-600 font-medium">
+            <TrendingUp className="w-4 h-4 mr-1" />
+            <span>3% increase</span>
+            <span className="text-gray-400 font-normal ml-2">from last month</span>
           </div>
+          {/* Decorative Sparkline Illusion */}
+          <svg className="absolute bottom-0 left-0 w-full h-12 text-green-100 opacity-50 preserve-3d" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <polygon fill="currentColor" points="0,100 0,80 20,60 40,75 60,40 80,50 100,20 100,100" />
+          </svg>
         </div>
 
-        {/* Widget 2 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-4">
+        {/* Stat 2 */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col justify-between relative overflow-hidden">
+          <div className="flex justify-between items-start">
             <div>
               <p className="text-sm font-medium text-gray-500">Total Members</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-1">{membersCount || 0}</h3>
-            </div>
-            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-              <Users className="w-5 h-5" />
+              <h3 className="text-3xl font-bold text-gray-900 mt-2">{membersCount || 0}</h3>
             </div>
           </div>
-          <div className="flex items-center text-sm">
-            <TrendingUp className="w-4 h-4 text-blue-500 mr-1" />
-            <span className="text-blue-500 font-medium mr-2">Growing</span>
-            <span className="text-gray-400">active clients</span>
+          <div className="flex items-center text-sm mt-4 text-green-600 font-medium">
+            <TrendingUp className="w-4 h-4 mr-1" />
+            <span>9% increase</span>
+            <span className="text-gray-400 font-normal ml-2">from last month</span>
           </div>
+          <svg className="absolute bottom-0 left-0 w-full h-12 text-green-100 opacity-50 preserve-3d" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <polygon fill="currentColor" points="0,100 0,90 25,70 50,80 75,40 100,30 100,100" />
+          </svg>
         </div>
 
-        {/* Widget 3 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-4">
+        {/* Stat 3 */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col justify-between relative overflow-hidden">
+          <div className="flex justify-between items-start">
             <div>
               <p className="text-sm font-medium text-gray-500">Upcoming Classes</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-1">{upcomingSchedules || 0}</h3>
-            </div>
-            <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
-              <Calendar className="w-5 h-5" />
+              <h3 className="text-3xl font-bold text-gray-900 mt-2">{upcomingSchedules || 0}</h3>
             </div>
           </div>
-          <div className="flex items-center text-sm">
-            <span className="text-gray-500">Scheduled for the future</span>
-          </div>
-        </div>
-
-        {/* Widget 4 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Package Types</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-1">{packagesCount || 0}</h3>
-            </div>
-            <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
-              <Package className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="flex items-center text-sm">
-            <span className="text-gray-500">Master data available</span>
+          <div className="flex items-center text-sm mt-4 text-gray-500 font-medium">
+            <Calendar className="w-4 h-4 mr-1" />
+            <span>Scheduled for the future</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* Main Content Area */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <Link href="/pos" className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-colors group">
-                <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <CreditCard className="w-6 h-6" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Open POS</span>
-              </Link>
-              
-              <Link href="/bookings/create" className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-colors group">
-                <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Calendar className="w-6 h-6" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">New Booking</span>
-              </Link>
-
-              <Link href="/members/create" className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-colors group">
-                <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Users className="w-6 h-6" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Add Member</span>
-              </Link>
-
-              <Link href="/class-schedules/create" className="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-colors group">
-                <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <Activity className="w-6 h-6" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">Schedule Class</span>
-              </Link>
-            </div>
+        {/* Filament Chart Widget Illusion */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 className="text-base font-bold text-gray-900">Revenue per Month</h2>
+            <button className="text-gray-400 hover:text-gray-600"><MoreVertical className="w-5 h-5"/></button>
+          </div>
+          <div className="p-6 flex-1 flex items-end gap-2 h-64 relative">
+             {/* Fake Bars representing Chart.js */}
+             <div className="w-full h-full flex items-end justify-between px-2 pb-6 border-b border-l border-gray-100 pt-4">
+                {[40, 70, 45, 90, 65, 100, 80].map((h, i) => (
+                  <div key={i} className="w-[10%] bg-orange-500 rounded-t-sm hover:bg-orange-600 transition-colors relative group" style={{ height: \`\${h}%\` }}>
+                     <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        Rp {h}M
+                     </div>
+                  </div>
+                ))}
+             </div>
+             <div className="absolute bottom-0 left-0 w-full flex justify-between px-8 text-xs text-gray-400">
+               <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span>
+             </div>
           </div>
         </div>
 
-        {/* Sidebar / Recent Activity */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-base font-bold text-gray-900">Recent Bookings</h2>
-              <Link href="/bookings" className="text-sm font-medium text-orange-600 hover:text-orange-700">
-                View all
-              </Link>
-            </div>
-            <div className="p-0">
-              <ul className="divide-y divide-gray-100">
+        {/* Filament Table Widget */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 className="text-base font-bold text-gray-900">Latest Bookings</h2>
+            <Link href="/bookings" className="text-sm font-medium text-orange-600 hover:text-orange-700">View All</Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Member</th>
+                  <th className="px-4 py-3 font-medium">Class</th>
+                  <th className="px-4 py-3 font-medium text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
                 {recentBookings?.map((booking) => (
-                  <li key={booking.id} className="p-5 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0">
-                        <User className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">
-                          {booking.member?.name}
-                        </p>
-                        <p className="text-xs text-gray-500 truncate mt-0.5">
-                          {booking.schedule?.class?.name} • {format(new Date(booking.schedule?.start_time), "dd MMM")}
-                        </p>
-                      </div>
-                      <div className="flex-shrink-0">
-                        <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
-                          {booking.status}
-                        </span>
-                      </div>
-                    </div>
-                  </li>
+                  <tr key={booking.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-bold text-gray-900">{booking.member?.name}</td>
+                    <td className="px-4 py-3 text-gray-500">
+                      {booking.schedule?.class?.name} <br/>
+                      <span className="text-xs">{format(new Date(booking.schedule?.start_time), "dd MMM HH:mm")}</span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="inline-flex px-2 py-1 rounded-md text-[10px] font-bold uppercase bg-green-100 text-green-700">
+                        {booking.status}
+                      </span>
+                    </td>
+                  </tr>
                 ))}
-                
                 {!recentBookings?.length && (
-                  <li className="p-8 text-center text-sm text-gray-500">
-                    No recent bookings found.
-                  </li>
+                  <tr><td colSpan={3} className="px-6 py-8 text-center text-gray-500">No bookings yet.</td></tr>
                 )}
-              </ul>
-            </div>
+              </tbody>
+            </table>
           </div>
         </div>
 
       </div>
-    </>
+    </div>
   );
 }
