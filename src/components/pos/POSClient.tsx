@@ -76,7 +76,7 @@ export function POSClient({ products, shops, paymentMethods, members }: any) {
         cart,
         total: subtotal
       });
-      toast.success(\`Checkout complete! Sale \${saleNumber} processed.\`, { icon: <CheckCircle className="text-green-500 w-5 h-5"/> });
+      toast.success("Checkout complete! Sale " + saleNumber + " processed.", { icon: <CheckCircle className="text-green-500 w-5 h-5"/> });
       setCart([]);
       setCustomerName("");
       setPaymentMethodName("");
