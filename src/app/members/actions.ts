@@ -33,3 +33,21 @@ export async function createMember(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/members");
 }
+
+export async function bulkActionMembers(ids: string[], actionType: 'delete' | 'suspend' | 'activate') {
+  if (!ids || ids.length === 0) return { error: "No members selected." };
+
+  if (actionType === 'delete') {
+    const { error } = await supabase.from("members").delete().in("id", ids);
+    if (error) return { error: "Failed to delete members." };
+  } else if (actionType === 'suspend') {
+    const { error } = await supabase.from("members").update({ status: 'SUSPENDED' }).in("id", ids);
+    if (error) return { error: "Failed to suspend members." };
+  } else if (actionType === 'activate') {
+    const { error } = await supabase.from("members").update({ status: 'ACTIVE' }).in("id", ids);
+    if (error) return { error: "Failed to activate members." };
+  }
+
+  revalidatePath("/members");
+  return { success: true };
+}
