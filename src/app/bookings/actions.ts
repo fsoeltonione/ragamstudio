@@ -21,9 +21,9 @@ export async function createBooking(formData: FormData) {
     
   if (!schedule) return { error: "Invalid schedule." };
   
-  const capacity = schedule.class.capacity || 0;
+  const capacity = schedule.class?.capacity || 0;
   // @ts-ignore
-  const currentBookings = schedule.bookings[0]?.count || 0;
+  const currentBookings = schedule.bookings?.[0]?.count || 0;
   const isWaitlist = currentBookings >= capacity;
 
   // 2. Find an active package for the member with remaining sessions
@@ -69,7 +69,7 @@ export async function createBooking(formData: FormData) {
   // TRIGGER REAL NOTIFICATION
   await supabase.from("database_notifications").insert({
     title: isWaitlist ? "New Waitlist Entry" : "New Class Booking",
-    message: \`User booked a session for Schedule \${schedule_id}\`
+    message: "User booked a session for Schedule " + schedule_id
   });
 
   revalidatePath("/", "layout");
