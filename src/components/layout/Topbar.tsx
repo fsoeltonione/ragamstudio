@@ -97,7 +97,7 @@ export function Topbar({ initialProps }: { initialProps: any }) {
                   {notifications.length > 0 ? (
                     <div className="divide-y divide-gray-100">
                       {notifications.map(notif => (
-                        <div key={notif.id} className={\`p-4 hover:bg-gray-50 transition-colors \${notif.is_read ? 'opacity-60' : 'bg-orange-50/30'}\`}>
+                        <div key={notif.id} className={["p-4 hover:bg-gray-50 transition-colors", notif.is_read ? "opacity-60" : "bg-orange-50/30"].join(" ")}>
                           <p className="text-sm font-bold text-gray-900">{notif.title}</p>
                           <p className="text-xs text-gray-500 mt-1">{notif.message}</p>
                           <p className="text-[10px] text-gray-400 mt-2">
