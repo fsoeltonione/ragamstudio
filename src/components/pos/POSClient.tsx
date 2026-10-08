@@ -164,13 +164,14 @@ export function POSClient({ products, shops, paymentMethods, members }: any) {
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <User className="w-4 h-4 text-gray-400" />
             </div>
-            <input 
-              type="text"
-              placeholder="Customer Name (Optional)"
+            <select 
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500 outline-none"
-            />
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500 outline-none appearance-none cursor-pointer"
+            >
+              <option value="">-- Guest Customer (Optional) --</option>
+              {members.map((m: any) => <option key={m.id} value={m.name}>{m.name}</option>)}
+            </select>
           </div>
 
         </div>
@@ -207,7 +208,7 @@ export function POSClient({ products, shops, paymentMethods, members }: any) {
 
         {/* Checkout Footer */}
         <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <div className="relative mb-4">
+          <div className="relative mb-3">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <CreditCard className="w-4 h-4 text-gray-400" />
             </div>
@@ -219,6 +220,14 @@ export function POSClient({ products, shops, paymentMethods, members }: any) {
               <option value="">-- Select Payment Method * --</option>
               {paymentMethods.map((pm: any) => <option key={pm.id} value={pm.name}>{pm.name}</option>)}
             </select>
+          </div>
+
+          <div className="mb-4">
+            <textarea
+              placeholder="Notes..."
+              rows={2}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-orange-500 focus:border-orange-500 outline-none resize-none"
+            ></textarea>
           </div>
 
           <div className="flex justify-between items-center mb-4">

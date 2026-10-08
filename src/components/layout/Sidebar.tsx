@@ -14,75 +14,75 @@ const menuGroups = [
   {
     title: "",
     items: [
-      { name: "Dashboard", href: "/", icon: Home },
-      { name: "Shop Management", href: "/shop-management", icon: ShoppingBag },
-      { name: "Analytics", href: "/analytics", icon: BarChart2 },
-      { name: "Point of Sale", href: "/pos", icon: MonitorSmartphone },
-      { name: "Classes", href: "/classes", icon: Users },
-      { name: "Packages", href: "/packages", icon: Package },
-      { name: "Locations", href: "/locations", icon: MapPin },
-      { name: "Medical", href: "/medical", icon: Activity },
+      { name: "Dashboard", href: "/admin", icon: Home },
+      { name: "Shop Management", href: "/admin/shop-management", icon: ShoppingBag },
+      { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
+      { name: "Point of Sale", href: "/admin/pos", icon: MonitorSmartphone },
+      { name: "Classes", href: "/admin/classes", icon: Users },
+      { name: "Packages", href: "/admin/packages", icon: Package },
+      { name: "Locations", href: "/admin/locations", icon: MapPin },
+      { name: "Medical", href: "/admin/medical", icon: Activity },
     ]
   },
   {
     title: "Management",
     icon: Folder,
     items: [
-      { name: "Bookings", href: "/bookings" },
-      { name: "Class Schedules", href: "/class-schedules" },
-      { name: "Member Packages", href: "/member-packages" },
-      { name: "Members", href: "/members" },
-      { name: "Progress Parameters", href: "/progress-parameters" },
-      { name: "Trainers", href: "/trainers" },
+      { name: "Bookings", href: "/admin/bookings" },
+      { name: "Class Schedules", href: "/admin/class-schedules" },
+      { name: "Member Packages", href: "/admin/member-packages" },
+      { name: "Members", href: "/admin/members" },
+      { name: "Progress Parameters", href: "/admin/progress-parameters" },
+      { name: "Trainers", href: "/admin/trainers" },
     ]
   },
   {
     title: "Payments",
     icon: DollarSign,
     items: [
-      { name: "Invoices", href: "/invoices" },
-      { name: "Payment Methods", href: "/payment-methods" },
-      { name: "Promo Codes", href: "/promo-codes" },
+      { name: "Invoices", href: "/admin/invoices" },
+      { name: "Payment Methods", href: "/admin/payment-methods" },
+      { name: "Promo Codes", href: "/admin/promo-codes" },
     ]
   },
   {
     title: "Finance",
     icon: BarChart2,
     items: [
-      { name: "Owner Profits", href: "/owner-profits" },
-      { name: "Trainer Payments", href: "/trainer-payments" },
-      { name: "Monthly Tax Report", href: "/tax-report" },
+      { name: "Owner Profits", href: "/admin/owner-profits" },
+      { name: "Trainer Payments", href: "/admin/trainer-payments" },
+      { name: "Monthly Tax Report", href: "/admin/tax-report" },
     ]
   },
   {
     title: "Content Management",
     icon: FileText,
     items: [
-      { name: "Review Moderation", href: "/review-moderation" },
-      { name: "Blogs", href: "/blogs" },
-      { name: "Faqs", href: "/faqs" },
-      { name: "Page Content", href: "/page-contents" },
+      { name: "Review Moderation", href: "/admin/review-moderation" },
+      { name: "Blogs", href: "/admin/blogs" },
+      { name: "Faqs", href: "/admin/faqs" },
+      { name: "Page Content", href: "/admin/page-contents" },
     ]
   },
   {
     title: "User Management",
     icon: UserCog,
     items: [
-      { name: "Users", href: "/users" },
-      { name: "Roles", href: "/shield/roles" },
-      { name: "Authentication Logs", href: "/authentication-logs" },
+      { name: "Users", href: "/admin/users" },
+      { name: "Roles", href: "/admin/shield/roles" },
+      { name: "Authentication Logs", href: "/admin/authentication-logs" },
     ]
   },
   {
     title: "Settings",
     icon: Settings,
     items: [
-      { name: "General Settings", href: "/general-settings" },
-      { name: "Payment Settings", href: "/manage-payment" },
-      { name: "SEO Settings", href: "/seo-settings" },
-      { name: "Topbar Settings", href: "/topbar-settings" },
-      { name: "Notification Templates", href: "/notification-templates" },
-      { name: "WhatsApp Accounts", href: "/whatsapp-accounts" },
+      { name: "General Settings", href: "/admin/general-settings" },
+      { name: "Payment Settings", href: "/admin/manage-payment" },
+      { name: "SEO Settings", href: "/admin/seo-settings" },
+      { name: "Topbar Settings", href: "/admin/topbar-settings" },
+      { name: "Notification Templates", href: "/admin/notification-templates" },
+      { name: "WhatsApp Accounts", href: "/admin/whatsapp-accounts" },
     ]
   }
 ];

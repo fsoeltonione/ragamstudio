@@ -14,7 +14,21 @@ const RESOURCES = [
   "Settings",
   "Users",
 ];
-const ACTIONS = ["viewAny", "view", "create", "update", "delete"];
+const ACTIONS = [
+  "viewAny",
+  "view",
+  "create",
+  "update",
+  "delete",
+  "restore",
+  "force Delete",
+  "force Delete Any",
+  "restore Any",
+  "replicate",
+  "reorder"
+];
+
+const TABS = ["Resources", "Pages", "Widgets", "Custom Permissions"];
 
 type PermissionsState = Record<string, Record<string, boolean>>;
 
@@ -27,6 +41,7 @@ export function PermissionsMatrix({
   name,
   initialValue,
 }: PermissionsMatrixProps) {
+  const [activeTab, setActiveTab] = useState("Resources");
   const [permissions, setPermissions] = useState<PermissionsState>(
     initialValue || {}
   );
@@ -60,66 +75,79 @@ export function PermissionsMatrix({
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden bg-white mt-2">
+    <div className="mt-4">
       <input type="hidden" name={name} value={JSON.stringify(permissions)} />
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-gray-50 border-b border-gray-200 text-xs text-gray-500 uppercase">
-            <tr>
-              <th className="px-4 py-3 font-medium">Resource</th>
-              {ACTIONS.map((action) => (
-                <th key={action} className="px-4 py-3 font-medium text-center">
-                  <div className="flex flex-col items-center gap-1">
-                    <span>{action}</span>
-                    <input
-                      type="checkbox"
-                      onChange={(e) =>
-                        toggleAllAction(action, e.target.checked)
-                      }
-                      className="w-3.5 h-3.5 text-orange-500 rounded focus:ring-orange-500"
-                      title={"Toggle all " + action}
-                    />
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
+      {/* Tabs */}
+      <div className="flex gap-4 border-b border-gray-200 mb-4 px-2">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab
+                ? "border-orange-500 text-orange-600"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+        {activeTab === "Resources" ? (
+          <div className="divide-y divide-gray-200">
             {RESOURCES.map((res) => {
               const resPerms = permissions[res] || {};
               const allChecked = ACTIONS.every((a) => resPerms[a]);
 
               return (
-                <tr key={res} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-bold text-gray-900">
-                    <div className="flex items-center gap-2">
+                <div key={res} className="bg-white">
+                  <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100 cursor-pointer">
+                    <div className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={allChecked}
                         onChange={(e) =>
                           toggleAllResource(res, e.target.checked)
                         }
-                        className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500"
-                      />
-                      {res}
-                    </div>
-                  </td>
-                  {ACTIONS.map((action) => (
-                    <td key={action} className="px-4 py-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={resPerms[action] || false}
-                        onChange={() => togglePermission(res, action)}
                         className="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500"
+                        title={"Select all " + res}
                       />
-                    </td>
-                  ))}
-                </tr>
+                      <span className="font-bold text-gray-900">{res}</span>
+                    </div>
+                    {/* Mock Accordion Chevron */}
+                    <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                    {ACTIONS.map((action) => (
+                      <div key={action} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`${res}-${action}`}
+                          checked={!!resPerms[action]}
+                          onChange={() => togglePermission(res, action)}
+                          className="w-4 h-4 text-orange-500 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
+                        />
+                        <label htmlFor={`${res}-${action}`} className="text-sm text-gray-700 capitalize cursor-pointer">
+                          {action}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               );
             })}
-          </tbody>
-        </table>
+          </div>
+        ) : (
+          <div className="p-8 text-center text-gray-500 bg-gray-50">
+            <p>Select specific {activeTab.toLowerCase()} access matrix here.</p>
+          </div>
+        )}
       </div>
     </div>
   );
