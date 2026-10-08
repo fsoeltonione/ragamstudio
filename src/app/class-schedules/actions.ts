@@ -10,7 +10,7 @@ export async function createClassSchedule(formData: FormData) {
   const start_time = formData.get("start_time") as string; // datetime-local format
   
   if (!class_id || !trainer_id || !start_time) {
-    return { error: "All fields are required." };
+    throw new Error("All fields are required.");
   }
 
   // Fetch the class duration to calculate end_time automatically
@@ -21,7 +21,7 @@ export async function createClassSchedule(formData: FormData) {
     .single();
 
   if (!studioClass) {
-    return { error: "Invalid class selected." };
+    throw new Error("Invalid class selected.");
   }
 
   // Calculate end_time
@@ -38,7 +38,7 @@ export async function createClassSchedule(formData: FormData) {
     });
 
   if (error) {
-    return { error: "Failed to create class schedule." };
+    throw new Error("Failed to create class schedule.");
   }
 
   revalidatePath("/", "layout");

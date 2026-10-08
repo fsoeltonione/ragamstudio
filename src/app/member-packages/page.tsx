@@ -40,10 +40,10 @@ export default async function MemberPackagesPage() {
               {memberPackages?.map((mp) => (
                 <tr key={mp.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 font-medium text-gray-900">
-                    {mp.member.name}
+                    {((mp as any).member)?.name || ((mp as any).member)?.[0]?.name || "-"}
                   </td>
                   <td className="px-6 py-4 text-gray-600">
-                    {mp.package.name}
+                    {((mp as any).package)?.name || ((mp as any).package)?.[0]?.name || "-"}
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-700 font-bold text-lg">

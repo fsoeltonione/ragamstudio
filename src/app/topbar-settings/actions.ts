@@ -17,5 +17,5 @@ export async function saveTopbarSettings(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  return { success: true };
+  return;
 }

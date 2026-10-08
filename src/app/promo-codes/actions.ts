@@ -10,7 +10,7 @@ export async function createPromoCode(formData: FormData) {
   const discount_fixed = parseInt(formData.get("discount_fixed") as string, 10) || 0;
 
   if (!code) {
-    return { error: "Promo code string is required." };
+    throw new Error("Promo code string is required.");
   }
 
   const { error } = await supabase.from("promo_codes").insert({
@@ -20,7 +20,7 @@ export async function createPromoCode(formData: FormData) {
   });
 
   if (error) {
-    return { error: "Failed to create promo code. Code might exist." };
+    throw new Error("Failed to create promo code. Code might exist.");
   }
 
   revalidatePath("/", "layout");

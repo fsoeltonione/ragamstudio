@@ -11,7 +11,7 @@ export async function createStudioClass(formData: FormData) {
   const capacityStr = formData.get("capacity") as string;
 
   if (!name || !durationMinStr || !capacityStr) {
-    return { error: "Name, duration, and capacity are required." };
+    throw new Error("Name, duration, and capacity are required.");
   }
 
   const duration_min = parseInt(durationMinStr, 10) || 60;
@@ -28,7 +28,7 @@ export async function createStudioClass(formData: FormData) {
     });
 
   if (error) {
-    return { error: "Failed to create studio class." };
+    throw new Error("Failed to create studio class.");
   }
 
   revalidatePath("/", "layout");

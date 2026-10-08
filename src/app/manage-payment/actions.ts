@@ -17,5 +17,5 @@ export async function savePaymentSettings(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  return { success: true };
+  return;
 }

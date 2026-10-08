@@ -11,7 +11,7 @@ export async function createPackage(formData: FormData) {
   const durationDaysStr = formData.get("duration_days") as string;
 
   if (!name || !priceStr || !totalSessionsStr || !durationDaysStr) {
-    return { error: "All fields are required." };
+    throw new Error("All fields are required.");
   }
 
   const price = parseInt(priceStr.replace(/\D/g, ''), 10) || 0;
@@ -29,7 +29,7 @@ export async function createPackage(formData: FormData) {
     });
 
   if (error) {
-    return { error: "Failed to create package template." };
+    throw new Error("Failed to create package template.");
   }
 
   revalidatePath("/", "layout");

@@ -76,17 +76,19 @@ export default async function BookingsPage({ searchParams }: { searchParams: { t
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {bookings?.map((booking) => (
-                <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
+              {bookings?.map((booking) => {
+                const b = booking as any;
+                return (
+                <tr key={b.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 font-bold text-gray-900">
-                    {booking.member?.name}
+                    {b.member?.name || (b.member?.[0]?.name)}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-gray-900 font-bold">{booking.schedule?.class?.name}</div>
-                    <div className="text-gray-500 text-xs">Trainer: {booking.schedule?.trainer?.name}</div>
+                    <div className="text-gray-900 font-bold">{b.schedule?.class?.name || b.schedule?.[0]?.class?.name}</div>
+                    <div className="text-gray-500 text-xs">Trainer: {b.schedule?.trainer?.name || b.schedule?.[0]?.trainer?.name}</div>
                   </td>
                   <td className="px-6 py-4 font-medium text-gray-700">
-                    {format(new Date(booking.schedule?.start_time), "dd MMM yyyy, HH:mm")}
+                    {format(new Date(b.schedule?.start_time || b.schedule?.[0]?.start_time || new Date()), "dd MMM yyyy, HH:mm")}
                   </td>
                   <td className="px-6 py-4">
                     {booking.is_waitlist ? (
@@ -112,7 +114,8 @@ export default async function BookingsPage({ searchParams }: { searchParams: { t
                     <AttendanceButtons id={booking.id} currentStatus={booking.attendance_status} />
                   </td>
                 </tr>
-              ))}
+                );
+              })}
 
               {!bookings?.length && (
                 <tr>

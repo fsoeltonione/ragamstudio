@@ -8,10 +8,10 @@ export async function createLocation(formData: FormData) {
   const name = formData.get("name") as string;
   const address = formData.get("address") as string;
 
-  if (!name) return { error: "Location name is required." };
+  if (!name) throw new Error("Location name is required.");
 
   const { error } = await supabase.from("locations").insert({ name, address });
-  if (error) return { error: "Failed to create location." };
+  if (error) throw new Error("Failed to create location.");
 
   revalidatePath("/", "layout");
   redirect("/locations");

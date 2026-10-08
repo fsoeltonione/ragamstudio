@@ -17,5 +17,5 @@ export async function saveSeoSettings(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  return { success: true };
+  return;
 }

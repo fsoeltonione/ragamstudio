@@ -11,7 +11,7 @@ export async function createMember(formData: FormData) {
   const gender = formData.get("gender") as string;
 
   if (!name || !email) {
-    return { error: "Name and Email are required." };
+    throw new Error("Name and Email are required.");
   }
 
   const { error } = await supabase
@@ -25,9 +25,9 @@ export async function createMember(formData: FormData) {
 
   if (error) {
     if (error.code === '23505') {
-      return { error: "Email address is already registered." };
+      throw new Error("Email address is already registered.");
     }
-    return { error: "Failed to create member." };
+    throw new Error("Failed to create member.");
   }
 
   revalidatePath("/", "layout");
@@ -35,19 +35,19 @@ export async function createMember(formData: FormData) {
 }
 
 export async function bulkActionMembers(ids: string[], actionType: 'delete' | 'suspend' | 'activate') {
-  if (!ids || ids.length === 0) return { error: "No members selected." };
+  if (!ids || ids.length === 0) throw new Error("No members selected.");
 
   if (actionType === 'delete') {
     const { error } = await supabase.from("members").delete().in("id", ids);
-    if (error) return { error: "Failed to delete members." };
+    if (error) throw new Error("Failed to delete members.");
   } else if (actionType === 'suspend') {
     const { error } = await supabase.from("members").update({ status: 'SUSPENDED' }).in("id", ids);
-    if (error) return { error: "Failed to suspend members." };
+    if (error) throw new Error("Failed to suspend members.");
   } else if (actionType === 'activate') {
     const { error } = await supabase.from("members").update({ status: 'ACTIVE' }).in("id", ids);
-    if (error) return { error: "Failed to activate members." };
+    if (error) throw new Error("Failed to activate members.");
   }
 
   revalidatePath("/members");
-  return { success: true };
+  return;
 }

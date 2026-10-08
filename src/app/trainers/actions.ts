@@ -11,7 +11,7 @@ export async function createTrainer(formData: FormData) {
   const per_head_rate = parseInt(formData.get("per_head_rate") as string, 10) || 0;
 
   if (!name || !email) {
-    return { error: "Name and Email are required." };
+    throw new Error("Name and Email are required.");
   }
 
   // Insert into users table as a trainer
@@ -23,7 +23,7 @@ export async function createTrainer(formData: FormData) {
   });
 
   if (error) {
-    return { error: "Failed to create trainer." };
+    throw new Error("Failed to create trainer.");
   }
 
   revalidatePath("/", "layout");

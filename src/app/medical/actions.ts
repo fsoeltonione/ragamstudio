@@ -8,10 +8,10 @@ export async function createMedicalCondition(formData: FormData) {
   const condition_name = formData.get("condition_name") as string;
   const description = formData.get("description") as string;
 
-  if (!condition_name) return { error: "Condition name is required." };
+  if (!condition_name) throw new Error("Condition name is required.");
 
   const { error } = await supabase.from("medical").insert({ condition_name, description });
-  if (error) return { error: "Failed to create medical record." };
+  if (error) throw new Error("Failed to create medical record.");
 
   revalidatePath("/", "layout");
   redirect("/medical");

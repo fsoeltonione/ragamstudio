@@ -68,7 +68,7 @@ export default async function CreateBookingPage() {
               <option value="">-- Choose a schedule --</option>
               {schedules?.map(schedule => (
                 <option key={schedule.id} value={schedule.id}>
-                  {format(new Date(schedule.start_time), "dd MMM yyyy, HH:mm")} - {schedule.class.name} (Trainer: {schedule.trainer?.name})
+                  {format(new Date(schedule.start_time), "dd MMM yyyy, HH:mm")} - {((schedule as any).class)?.name || "Unknown"} (Trainer: {((schedule as any).trainer)?.name || "Unknown"})
                 </option>
               ))}
             </select>

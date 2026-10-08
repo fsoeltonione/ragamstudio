@@ -9,7 +9,7 @@ export async function createBooking(formData: FormData) {
   const schedule_id = formData.get("schedule_id") as string;
 
   if (!member_id || !schedule_id) {
-    return { error: "Member and Schedule are required." };
+    throw new Error("Member and Schedule are required.");
   }
 
   // 1. Check Capacity to determine if Waitlist
@@ -19,9 +19,10 @@ export async function createBooking(formData: FormData) {
     .eq("id", schedule_id)
     .single();
     
-  if (!schedule) return { error: "Invalid schedule." };
+  if (!schedule) throw new Error("Invalid schedule.");
   
-  const capacity = schedule.class?.capacity || 0;
+  const classData = Array.isArray(schedule.class) ? schedule.class[0] : schedule.class;
+  const capacity = (classData as any)?.capacity || 0;
   // @ts-ignore
   const currentBookings = schedule.bookings?.[0]?.count || 0;
   const isWaitlist = currentBookings >= capacity;
@@ -37,7 +38,7 @@ export async function createBooking(formData: FormData) {
     .limit(1);
 
   if (!memberPackages || memberPackages.length === 0) {
-    return { error: "Member does not have an active package with remaining credits." };
+    throw new Error("Member does not have an active package with remaining credits.");
   }
 
   const activePackage = memberPackages[0];
@@ -51,7 +52,7 @@ export async function createBooking(formData: FormData) {
     })
     .eq("id", activePackage.id);
 
-  if (deductError) return { error: "Failed to deduct package session." };
+  if (deductError) throw new Error("Failed to deduct package session.");
 
   // 4. Create the Booking
   const { error: bookingError } = await supabase
@@ -64,7 +65,7 @@ export async function createBooking(formData: FormData) {
       attendance_status: "PENDING"
     });
 
-  if (bookingError) return { error: "Failed to create booking." };
+  if (bookingError) throw new Error("Failed to create booking.");
 
   // TRIGGER REAL NOTIFICATION
   await supabase.from("database_notifications").insert({

@@ -62,8 +62,8 @@ export default async function ClassSchedulesPage() {
                         <Calendar className="w-4 h-4" />
                       </div>
                       <div>
-                        <div>{schedule.class.name}</div>
-                        <div className="text-xs text-gray-500 font-normal">Capacity: {schedule.class.capacity} pax</div>
+                        <div>{((schedule as any).class)?.name || "Unknown"}</div>
+                        <div className="text-xs text-gray-500 font-normal">Capacity: {((schedule as any).class)?.capacity || 0} pax</div>
                       </div>
                     </div>
                   </td>
@@ -82,7 +82,7 @@ export default async function ClassSchedulesPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-500">
-                    {schedule.class.duration_min} mins
+                    {((schedule as any).class)?.duration_min || 0} mins
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button className="text-orange-600 hover:text-orange-800 font-medium">
